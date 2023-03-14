@@ -147,7 +147,7 @@ class FormManager
                     $seller->sendMessage("§aMarket > §fsuccesfully buy §a" . $item->getName());
                     foreach($this->plugin->markets as $i => $market){ 
                         if($market["id"] === $dataMarket["id"]){ 
-                            unset($i); 
+                            unset($market[$i]); 
                             break;
                         }
                     }
