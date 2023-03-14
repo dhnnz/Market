@@ -119,6 +119,20 @@ class FormManager
         return $form;
     }
 
+    public function selectListing(Player $p, array $dataMarket)
+    {
+        $item = $p->getInventory()->getItemInHand()->jsonDeserialize($dataMarket["itemJson"]);
+        $form = new SimpleForm(function (Player $p, $data = null) {
+            if ($data === null)
+                return;
+        });
+        $form->setTitle($item->getName()."-".$dataMarket["id"]);
+        $form->setContent("ID: " . $dataMarket["id"] . "\nItem name: " . $item->getName() . "\nItem ID: " . $item->getId() . "\nItem Meta: " . $item->getMeta() . "\nPrice: " . number_format((float) $dataMarket["price"]) . "\nSeller: " . $dataMarket["seller"]);
+        $form->addButton("Remove Listing");
+        $form->sendToPlayer($p);
+        return $form;
+    }
+
     public function nextBuy(Player $p, array $dataMarket)
     {
         $item = $p->getInventory()->getItemInHand()->jsonDeserialize($dataMarket["itemJson"]);
@@ -131,7 +145,12 @@ class FormManager
                         $seller->sendMessage("§aMarket > §fplayer §a" . $p->getName() . "§f buy §a" . $item->getName() . "§f id §a" . $dataMarket["id"]);
                     }
                     $seller->sendMessage("§aMarket > §fsuccesfully buy §a" . $item->getName());
-                    foreach($this->plugin->markets as $i => $market){ if($market["id"] == $dataMarket["id"]){ unset($i); } }
+                    foreach($this->plugin->markets as $i => $market){ 
+                        if($market["id"] === $dataMarket["id"]){ 
+                            unset($i); 
+                            break;
+                        }
+                    }
                 } else {
                     $p->sendMessage("§aMarket > §cYour inventory full!");
                 }
