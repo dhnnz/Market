@@ -27,4 +27,13 @@ class Utils{
         }
         return false;
     }
+
+    public static function getDataWithId($id, array $markets){
+        foreach($markets as $i => $dataMarket){
+            if($dataMarket["id"] === $id){
+                return $dataMarket;
+            }
+        }
+        return null;
+    }
 }
