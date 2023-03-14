@@ -155,6 +155,7 @@ class FormManager
                     $p->sendMessage("§aMarket > §cYour inventory full!");
                 }
             }
+            return true;
         });
         $form->setTitle("Buy");
         $form->setContent("ID: ".$dataMarket["id"]."\nItem name: ".$item->getName()."\nItem ID: ".$item->getId()."\nItem Meta: ".$item->getMeta()."\nPrice: ".number_format((float) $dataMarket["price"])."\nSeller: ".$dataMarket["seller"]);
