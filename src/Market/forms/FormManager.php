@@ -173,6 +173,12 @@ class FormManager
         $form = new CustomForm(function (Player $p, $data = null) {
             if ($data === null)
                 return;
+            if (!is_numeric($data["count"]) && (int)$data["count"] !== $data["count"]) {
+                if (!is_numeric($data["price"]) && (int)$data["price"] !== $data["price"]) {
+                    return;
+                }
+                return;
+            }
             $items = array();
             foreach ($p->getInventory()->getContents() as $item) {
                 array_push($items, $item);
