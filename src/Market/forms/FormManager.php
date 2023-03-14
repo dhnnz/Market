@@ -103,10 +103,7 @@ class FormManager
         $form = new SimpleForm(function (Player $p, $data = null) {
             if ($data === null)
                 return;
-            match ($data) {
-                0 => $this->nextSell($p),
-                default => $this->main($p)
-            };
+            $this->selectListing($p, Utils::getDataWithId($data, $this->plugin->markets));
         });
         $form->setTitle("Sell");
         foreach ($this->plugin->markets as $sellers => $market) {
@@ -122,13 +119,22 @@ class FormManager
     public function selectListing(Player $p, array $dataMarket)
     {
         $item = $p->getInventory()->getItemInHand()->jsonDeserialize($dataMarket["itemJson"]);
-        $form = new SimpleForm(function (Player $p, $data = null) {
+        $form = new SimpleForm(function (Player $p, $data = null) use ($dataMarket){
             if ($data === null)
                 return;
+            switch($data){
+                case "remove":
+                    $p->sendMessage("§aMarket > §fListing successfully removed.");
+                    unset($this->plugin->markets[array_search($dataMarket, $this->plugin->markets)]);
+                    $this->myListings($p);
+                    break;
+                default:
+                  break;
+            }
         });
         $form->setTitle($item->getName()."-".$dataMarket["id"]);
         $form->setContent("ID: " . $dataMarket["id"] . "\nItem name: " . $item->getName() . "\nItem ID: " . $item->getId() . "\nItem Meta: " . $item->getMeta() . "\nPrice: " . number_format((float) $dataMarket["price"]) . "\nSeller: " . $dataMarket["seller"]);
-        $form->addButton("Remove Listing");
+        $form->addButton("Remove Listing", label:"remove");
         $form->sendToPlayer($p);
         return $form;
     }
