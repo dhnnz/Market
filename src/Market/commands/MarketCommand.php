@@ -17,8 +17,10 @@ class MarketCommand extends Command{
     public function execute(CommandSender $sender, string $commandLabel, array $args)
     {
         if(!$sender instanceof Player) return;
-        if(count($args) < 1)
+        if(count($args) < 1){
             $this->plugin->getFormManager()->main($sender);
+            return;
+        }
         switch($args[0]){
             default:
               $id = $args[0];
