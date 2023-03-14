@@ -136,7 +136,8 @@ class FormManager
     public function nextBuy(Player $p, array $dataMarket)
     {
         $item = $p->getInventory()->getItemInHand()->jsonDeserialize($dataMarket["itemJson"]);
-        $form = new ModalForm(function (Player $p, bool $data) use ($dataMarket, $item) {
+        $form = new ModalForm(function (Player $p, $data) use ($dataMarket, $item) {
+            if($data === null) return;
             if ($data) {
                 if ($p->getInventory()->canAddItem($item)) {
                     $p->getInventory()->addItem($item);
@@ -145,17 +146,11 @@ class FormManager
                         $seller->sendMessage("§aMarket > §fplayer §a" . $p->getName() . "§f buy §a" . $item->getName() . "§f id §a" . $dataMarket["id"]);
                     }
                     $seller->sendMessage("§aMarket > §fsuccesfully buy §a" . $item->getName());
-                    foreach($this->plugin->markets as $i => $market){ 
-                        if($market["id"] === $dataMarket["id"]){ 
-                            unset($market[$i]); 
-                            break;
-                        }
-                    }
+                    unset($this->plugin->markets[array_search($dataMarket, $this->plugin->markets)]);
                 } else {
                     $p->sendMessage("§aMarket > §cYour inventory full!");
                 }
             }
-            return true;
         });
         $form->setTitle("Buy");
         $form->setContent("ID: ".$dataMarket["id"]."\nItem name: ".$item->getName()."\nItem ID: ".$item->getId()."\nItem Meta: ".$item->getMeta()."\nPrice: ".number_format((float) $dataMarket["price"])."\nSeller: ".$dataMarket["seller"]);
@@ -193,17 +188,14 @@ class FormManager
         $form = new CustomForm(function (Player $p, $data = null) {
             if ($data === null)
                 return;
-            if (!is_numeric($data["count"]) && (int)$data["count"] !== $data["count"]) {
-                if (!is_numeric($data["price"]) && (int)$data["price"] !== $data["price"]) {
-                    return;
-                }
+            if (!is_numeric($data["count"]) || (int) $data["count"] !== $data["count"])
                 return;
-            }
+            if (!is_numeric($data["price"]) || (int) $data["price"] !== $data["price"])
+                return;
             $items = array();
             foreach ($p->getInventory()->getContents() as $item) {
                 array_push($items, $item);
             }
-            /** @var Item $itemSelected */
             $itemSelected = $items[$data["items"]];
             if ($data["count"] > $itemSelected->getCount())
                 $this->nextSell($p, "§cNot enough items");

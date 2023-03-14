@@ -7,7 +7,7 @@ use pocketmine\player\Player;
 
 class Utils{
 
-    public static function removeItem(Player $player, Item $slot): bool
+    public static function removeItem(Player $player, Item $itemSelected): bool
     {
         $inventory = $player->getInventory();
         for ($i = 0, $size = $inventory->getSize(); $i < $size; ++$i) {
@@ -15,12 +15,12 @@ class Utils{
             if ($item->isNull())
                 continue;
 
-            if ($slot->equals($item)) {
-                $amount = min($item->getCount(), $slot->getCount());
-                $slot->setCount($slot->getCount() - $amount);
+            if ($itemSelected->equals($item)) {
+                $amount = min($item->getCount(), $itemSelected->getCount());
+                $itemSelected->setCount($itemSelected->getCount() - $amount);
                 $item->setCount($item->getCount() - $amount);
                 $inventory->setItem($i, $item);
-                if ($slot->getCount() <= 0) {
+                if ($itemSelected->getCount() <= 0) {
                     return true;
                 }
             }
