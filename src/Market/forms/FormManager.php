@@ -180,7 +180,6 @@ class FormManager
         $form->setTitle("Sell");
         $form->addButton("Sell item");
         $form->addButton("My listing");
-        $form->addButton("§cAdmin Menu");
         $form->sendToPlayer($p);
         return $form;
     }
