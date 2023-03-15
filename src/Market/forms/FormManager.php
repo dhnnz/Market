@@ -194,10 +194,14 @@ class FormManager
         $form = new CustomForm(function (Player $p, $data = null) {
             if ($data === null)
                 return;
-            if (!is_numeric($data["count"]) || (int) $data["count"] !== $data["count"])
+            if (!is_numeric($data["count"])){
+                $this->nextSell($p, "§cCount must be type int");
                 return;
-            if (!is_numeric($data["price"]) || (int) $data["price"] !== $data["price"])
+            }
+            if (!is_numeric($data["price"])){
+                $this->nextSell($p, "§cPrice must be type int");
                 return;
+            }
             $items = array();
             foreach ($p->getInventory()->getContents() as $item) {
                 array_push($items, $item);
@@ -206,6 +210,7 @@ class FormManager
             if ($data["count"] > $itemSelected->getCount())
                 $this->nextSell($p, "§cNot enough items");
             $itemSelected->setCount($data["count"]);
+            Utils::removeItem($p, $itemSelected);
             $this->plugin->registerMarket(
                 $p,
                 array(
@@ -216,7 +221,6 @@ class FormManager
                     "state" => !$data["state"] ? 0 : 1
                 )
             );
-            Utils::removeItem($p, $itemSelected);
             $p->sendMessage("§aMarket > §fItem §a".$itemSelected->getName()."§f added to Market");
         });
         $form->setTitle("Sell");
