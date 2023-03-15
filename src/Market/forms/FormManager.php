@@ -130,9 +130,11 @@ class FormManager
                     break;
                 case 0:
                     $this->plugin->markets[array_search($dataMarket, $this->plugin->markets)]["state"] = 1;
+                    $p->sendMessage("§aMarket > §fYour Listing Has Been Successfully Published");
                     break;
                 case 1:
                     $this->plugin->markets[array_search($dataMarket, $this->plugin->markets)]["state"] = 0;
+                    $p->sendMessage("§aMarket > §fYour Listing Has Been Successfully Made Private");
                     break;
                 default:
                   break;
