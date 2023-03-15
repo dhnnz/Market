@@ -128,6 +128,12 @@ class FormManager
                     unset($this->plugin->markets[array_search($dataMarket, $this->plugin->markets)]);
                     $this->myListings($p);
                     break;
+                case 0:
+                    $this->plugin->markets[array_search($dataMarket, $this->plugin->markets)]["state"] = 1;
+                    break;
+                case 1:
+                    $this->plugin->markets[array_search($dataMarket, $this->plugin->markets)]["state"] = 0;
+                    break;
                 default:
                   break;
             }
@@ -135,6 +141,7 @@ class FormManager
         $form->setTitle($item->getName()."-".$dataMarket["id"]);
         $form->setContent("ID: " . $dataMarket["id"] . "\nItem name: " . $item->getName() . "\nItem ID: " . $item->getId() . "\nItem Meta: " . $item->getMeta() . "\nPrice: " . number_format((float) $dataMarket["price"]) . "\nSeller: " . $dataMarket["seller"]);
         $form->addButton("Remove Listing", label:"remove");
+        $form->addButton(($dataMarket["state"] > 0) ? "Private listing" : "Publish listing", label:$dataMarket["state"]);
         $form->sendToPlayer($p);
         return $form;
     }
