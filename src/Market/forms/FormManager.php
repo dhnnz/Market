@@ -217,7 +217,8 @@ class FormManager
                     "itemJson" => $itemSelected->jsonSerialize(),
                     "price" => $data["price"],
                     "id" => uniqid(),
-                    "state" => !$data["state"] ? 0 : 1
+                    "state" => !$data["state"] ? 0 : 1,
+                    "created" => date("Y-m-d h:i:s")
                 )
             );
             $p->sendMessage("§aMarket > §fItem §a".$itemSelected->getName()."§f added to Market");
