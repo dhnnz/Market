@@ -218,7 +218,6 @@ class FormManager
             if ($data["count"] > $itemSelected->getCount())
                 $this->nextSell($p, "§cNot enough items");
             $itemSelected->setCount($data["count"]);
-            Utils::removeItem($p, $itemSelected);
             $this->plugin->registerMarket(
                 $p,
                 array(
@@ -230,6 +229,7 @@ class FormManager
                     "created" => date("Y-m-d h:i:s")
                 )
             );
+            Utils::removeItem($p, $itemSelected);
             $p->sendMessage("§aMarket > §fItem §a".$itemSelected->getName()."§f added to Market");
         });
         $form->setTitle("Sell");
