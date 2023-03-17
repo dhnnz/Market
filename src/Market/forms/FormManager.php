@@ -7,6 +7,7 @@ use jojoe77777\FormAPI\ModalForm;
 use jojoe77777\FormAPI\SimpleForm;
 use Market\Loader;
 use Market\utils\Utils;
+use onebone\economyapi\EconomyAPI;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\player\Player;
@@ -58,7 +59,7 @@ class FormManager
     {
         $markets = array();
         foreach ($this->plugin->markets as $sellers => $market) {
-            if($market["state"] > 0){
+            if ($market["state"] > 0) {
                 array_push($markets, $market);
             }
         }
@@ -76,7 +77,7 @@ class FormManager
                     $this->marketListing($p);
                 }
             }
-            if($data !== "next" and $data !== "prev"){
+            if ($data !== "next" and $data !== "prev") {
                 $this->nextBuy($p, $markets[$data]);
             }
         });
@@ -86,7 +87,7 @@ class FormManager
         $end = min(($start + 5), count($markets));
         for ($i = $start; $i < $end; $i++) {
             $item = $p->getInventory()->getItemInHand()->jsonDeserialize($markets[$i]["itemJson"]);
-            $form->addButton("§f".$item->getName() . ": " . $item->getCount() . "\n§fPrice: §5" . number_format((float) $markets[$i]["price"]) . "§f Sell by " . $markets[$i]["seller"], label: $i);
+            $form->addButton("§f" . $item->getName() . ": " . $item->getCount() . "\n§fPrice: §5" . number_format((float) $markets[$i]["price"]) . "§f Sell by " . $markets[$i]["seller"], label: $i);
         }
         if ($page < $total_pages) {
             $form->addButton("Next", label: "next");
@@ -109,7 +110,7 @@ class FormManager
         foreach ($this->plugin->markets as $sellers => $market) {
             if ($market["seller"] == $p->getName()) {
                 $item = $p->getInventory()->getItemInHand()->jsonDeserialize($market["itemJson"]);
-                $form->addButton("§f".$item->getName() . ": " . $item->getCount() . "\n§fPrice: §5" . number_format((float) $market["price"]) . "§f Sell by " . $market["seller"], label: $market["id"]);
+                $form->addButton("§f" . $item->getName() . ": " . $item->getCount() . "\n§fPrice: §5" . number_format((float) $market["price"]) . "§f Sell by " . $market["seller"], label: $market["id"]);
             }
         }
         $form->sendToPlayer($p);
@@ -119,10 +120,10 @@ class FormManager
     public function selectListing(Player $p, array $dataMarket)
     {
         $item = $p->getInventory()->getItemInHand()->jsonDeserialize($dataMarket["itemJson"]);
-        $form = new SimpleForm(function (Player $p, $data = null) use ($dataMarket){
+        $form = new SimpleForm(function (Player $p, $data = null) use ($dataMarket) {
             if ($data === null)
                 return;
-            switch($data){
+            switch ($data) {
                 case "remove":
                     $p->sendMessage("§aMarket > §fListing successfully removed.");
                     unset($this->plugin->markets[array_search($dataMarket, $this->plugin->markets)]);
@@ -137,13 +138,13 @@ class FormManager
                     $p->sendMessage("§aMarket > §fYour Listing Has Been Successfully Made Private");
                     break;
                 default:
-                  break;
+                    break;
             }
         });
-        $form->setTitle($item->getName()."-".$dataMarket["id"]);
+        $form->setTitle($item->getName() . "-" . $dataMarket["id"]);
         $form->setContent("ID: " . $dataMarket["id"] . "\nItem name: " . $item->getName() . "\nItem ID: " . $item->getId() . "\nItem Meta: " . $item->getMeta() . "\nPrice: " . number_format((float) $dataMarket["price"]) . "\nSeller: " . $dataMarket["seller"]);
-        $form->addButton("Remove Listing", label:"remove");
-        $form->addButton(($dataMarket["state"] > 0) ? "Private listing" : "Publish listing", label:$dataMarket["state"]);
+        $form->addButton("Remove Listing", label: "remove");
+        $form->addButton(($dataMarket["state"] > 0) ? "Private listing" : "Publish listing", label: $dataMarket["state"]);
         $form->sendToPlayer($p);
         return $form;
     }
@@ -152,9 +153,17 @@ class FormManager
     {
         $item = $p->getInventory()->getItemInHand()->jsonDeserialize($dataMarket["itemJson"]);
         $form = new ModalForm(function (Player $p, $data) use ($dataMarket, $item) {
-            if($data === null) return;
+            if ($data === null)
+                return;
             if ($data) {
+                if($dataMarket["seller"] === $p->getName()) return $p->sendMessage("§aMarket > §cPlease note that sellers are not allowed to purchase their own items for sale.");
                 if ($p->getInventory()->canAddItem($item)) {
+                    // EconomyAPI plugin
+                    $economyApi = EconomyAPI::getInstance();
+                    if ($economyApi->myMoney($p) < intval($dataMarket["price"])) {
+                        return $p->sendMessage("§aMarket > §cInsufficient funds to purchase this listing.");
+                    }
+                    $economyApi->reduceMoney($p, intval($dataMarket["price"]));
                     $p->getInventory()->addItem($item);
                     $seller = $p->getServer()->getPlayerExact($dataMarket["seller"]);
                     if ($seller instanceof Player) {
@@ -168,7 +177,7 @@ class FormManager
             }
         });
         $form->setTitle("Buy");
-        $form->setContent("ID: ".$dataMarket["id"]."\nItem name: ".$item->getName()."\nItem ID: ".$item->getId()."\nItem Meta: ".$item->getMeta()."\nPrice: ".number_format((float) $dataMarket["price"])."\nSeller: ".$dataMarket["seller"]);
+        $form->setContent("ID: " . $dataMarket["id"] . "\nItem name: " . $item->getName() . "\nItem ID: " . $item->getId() . "\nItem Meta: " . $item->getMeta() . "\nPrice: " . number_format((float) $dataMarket["price"]) . "\nSeller: " . $dataMarket["seller"]);
         $form->setButton1("Buy");
         $form->setButton2("Back");
         $form->sendToPlayer($p);
@@ -202,11 +211,11 @@ class FormManager
         $form = new CustomForm(function (Player $p, $data = null) {
             if ($data === null)
                 return;
-            if (!is_numeric($data["count"])){
+            if (!is_numeric($data["count"])) {
                 $this->nextSell($p, "§cCount must be type int");
                 return;
             }
-            if (!is_numeric($data["price"])){
+            if (!is_numeric($data["price"])) {
                 $this->nextSell($p, "§cPrice must be type int");
                 return;
             }
@@ -230,7 +239,7 @@ class FormManager
                 )
             );
             Utils::removeItem($p, $itemSelected);
-            $p->sendMessage("§aMarket > §fItem §a".$itemSelected->getName()."§f added to Market");
+            $p->sendMessage("§aMarket > §fItem §a" . $itemSelected->getName() . "§f added to Market");
         });
         $form->setTitle("Sell");
         $form->addLabel($label);
