@@ -83,7 +83,7 @@ class FormManager
             }
         });
         if(count($markets) < 1) $form->setContent("There are no listings available at this time.");
-        $form->addButton("Close", -1, "textures/blocks/barrier", label:"close");
+        $form->addButton("Close", 0, "textures/blocks/barrier", label:"close");
         $form->setTitle("Market Listings - Page $page");
         $total_pages = ceil(count($markets) / 5);
         $start = ($page - 1) * 5;
