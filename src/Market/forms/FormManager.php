@@ -67,6 +67,7 @@ class FormManager
             if ($data === null)
                 return;
 
+            if ($data == "close") {}
             if ($data == "next") {
                 $this->marketListing($p, $page + 1);
             }
@@ -77,10 +78,12 @@ class FormManager
                     $this->marketListing($p);
                 }
             }
-            if ($data !== "next" and $data !== "prev") {
+            if ($data !== "next" and $data !== "prev" and $data !== "close") {
                 $this->nextBuy($p, $markets[$data]);
             }
         });
+        if(count($markets) < 1) $form->setContent("There are no listings available at this time.");
+        $form->addButton("Close", -1, "textures/blocks/barrier", label:"close");
         $form->setTitle("Market Listings - Page $page");
         $total_pages = ceil(count($markets) / 5);
         $start = ($page - 1) * 5;
