@@ -8,8 +8,10 @@ use dhnnz\Market\utils\Utils;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
+use pocketmine\plugin\Plugin;
+use pocketmine\plugin\PluginOwned;
 
-class MarketCommand extends Command
+class MarketCommand extends Command implements PluginOwned
 {
     public function __construct(protected Loader $plugin)
     {
@@ -21,16 +23,21 @@ class MarketCommand extends Command
         if (!$sender instanceof Player)
             return;
         if (count($args) < 1) {
-            $this->plugin->getFormManager()->main($sender);
+            $this->getOwningPlugin()->getFormManager()->main($sender);
             return;
         }
         switch ($args[0]) {
             default:
                 $id = $args[0];
-                if (Utils::getDataWithId($id, $this->plugin->markets) !== null) {
-                    $this->plugin->getFormManager()->nextBuy($sender, Utils::getDataWithId($id, $this->plugin->markets));
+                if (Utils::getDataWithId($id, $this->getOwningPlugin()->markets) !== null) {
+                    $this->getOwningPlugin()->getFormManager()->nextBuy($sender, Utils::getDataWithId($id, $this->getOwningPlugin()->markets));
                 }
                 break;
         }
+    }
+
+    public function getOwningPlugin(): Loader
+    {
+        return $this->plugin;
     }
 }

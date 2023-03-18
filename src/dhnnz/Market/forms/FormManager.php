@@ -2,9 +2,9 @@
 
 namespace dhnnz\Market\forms;
 
-use jojoe77777\FormAPI\CustomForm;
-use jojoe77777\FormAPI\ModalForm;
-use jojoe77777\FormAPI\SimpleForm;
+use dhnnz\Market\libs\jojoe77777\FormAPI\CustomForm;
+use dhnnz\Market\libs\jojoe77777\FormAPI\ModalForm;
+use dhnnz\Market\libs\jojoe77777\FormAPI\SimpleForm;
 use dhnnz\Market\Loader;
 use dhnnz\Market\utils\Utils;
 use onebone\economyapi\EconomyAPI;
@@ -161,19 +161,17 @@ class FormManager
             if ($data) {
                 if($dataMarket["seller"] === $p->getName()) return $p->sendMessage("§aMarket > §cPlease note that sellers are not allowed to purchase their own items for sale.");
                 if ($p->getInventory()->canAddItem($item)) {
-                    // EconomyAPI plugin
-                    $economyApi = EconomyAPI::getInstance();
-                    if ($economyApi->myMoney($p) < intval($dataMarket["price"])) {
-                        return $p->sendMessage("§aMarket > §cInsufficient funds to purchase this listing.");
-                    }
-                    $economyApi->reduceMoney($p, intval($dataMarket["price"]));
-                    $p->getInventory()->addItem($item);
-                    $seller = $p->getServer()->getPlayerExact($dataMarket["seller"]);
-                    if ($seller instanceof Player) {
-                        $seller->sendMessage("§aMarket > §fplayer §a" . $p->getName() . "§f buy §a" . $item->getName() . "§f id §a" . $dataMarket["id"]);
-                    }
-                    $seller->sendMessage("§aMarket > §fsuccesfully buy §a" . $item->getName());
-                    unset($this->plugin->markets[array_search($dataMarket, $this->plugin->markets)]);
+                    $provider = $this->plugin->getEconomy();
+                    $provider->buy($p, $dataMarket["price"], function (int $status) use ($p, $item, $dataMarket){
+                        if ($status !== Loader::STATUS_SUCCESS) return $p->sendMessage("§aMarket > §cInsufficient funds to purchase this listing.");
+                        $p->getInventory()->addItem($item);
+                        $seller = $p->getServer()->getPlayerExact($dataMarket["seller"]);
+                        if ($seller instanceof Player) {
+                            $seller->sendMessage("§aMarket > §fplayer §a" . $p->getName() . "§f buy §a" . $item->getName() . "§f id §a" . $dataMarket["id"]);
+                        }
+                        $p->sendMessage("§aMarket > §fsuccesfully buy §a" . $item->getName());
+                        unset($this->plugin->markets[array_search($dataMarket, $this->plugin->markets)]);
+                    });
                 } else {
                     $p->sendMessage("§aMarket > §cYour inventory full!");
                 }
