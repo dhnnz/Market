@@ -219,9 +219,6 @@ class FormManager
                             }
                             $p->sendMessage("§aMarket > §fsuccesfully buy §a" . $item->getName());
                             unset($this->plugin->markets[array_search($dataMarket, $this->plugin->markets)]);
-                            if (!isset($this->plugin->historys[$dataMarket["seller"]])) {
-                                $this->plugin->historys[$dataMarket["seller"]] = [];
-                            }
                         }
                     );
                 } else {
