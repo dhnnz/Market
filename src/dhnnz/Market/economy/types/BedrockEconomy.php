@@ -8,8 +8,8 @@ use dhnnz\Market\Loader;
 use cooldogedev\BedrockEconomy\api\BedrockEconomyAPI;
 use cooldogedev\BedrockEconomy\api\version\LegacyBEAPI;
 use cooldogedev\BedrockEconomy\libs\cooldogedev\libSQL\context\ClosureContext;
-
 use pocketmine\player\Player;
+use pocketmine\Server;
 
 class BedrockEconomy extends Economy
 {
@@ -21,8 +21,9 @@ class BedrockEconomy extends Economy
         $this->bedrockEconomyAPI = BedrockEconomyAPI::legacy();
     }
 
-    public function buy(Player $player, int $amount, callable $callable): void
+    public function buy(Player $player, string $seller, int $amount, callable $callable): void
     {
+        $this->bedrockEconomyAPI->addToPlayerBalance($seller, $amount, ClosureContext::create(function (bool $wasUpdated): void{}));
         $this->bedrockEconomyAPI->subtractFromPlayerBalance(
             $player->getName(),
             $amount,

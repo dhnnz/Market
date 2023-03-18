@@ -71,7 +71,8 @@ class FormManager
 
             if ($data == "close") {
             }
-            if($data == "search") $this->searchListing($p);
+            if ($data == "search")
+                $this->searchListing($p);
             if ($data == "next") {
                 $this->marketListing($p, $page + 1);
             }
@@ -112,8 +113,9 @@ class FormManager
 
     public function searchListing(Player $p)
     {
-        $form = new CustomForm(function(Player $p, $data = null){
-            if($data === null) return;
+        $form = new CustomForm(function (Player $p, $data = null) {
+            if ($data === null)
+                return;
             $search = $data["search"];
             $markets = [];
 
@@ -132,10 +134,10 @@ class FormManager
                 }
             }
 
-            $this->marketListing($p, markets:$markets, search:$search);
+            $this->marketListing($p, markets: $markets, search: $search);
         });
         $form->setTitle("Search");
-        $form->addInput("search:", label:"search");
+        $form->addInput("search:", label: "search");
         $form->sendToPlayer($p);
         return $form;
     }
@@ -200,18 +202,27 @@ class FormManager
                 if ($dataMarket["seller"] === $p->getName())
                     return $p->sendMessage("§aMarket > §cPlease note that sellers are not allowed to purchase their own items for sale.");
                 if ($p->getInventory()->canAddItem($item)) {
-                    $provider = $this->plugin->getEconomy();
-                    $provider->buy($p, $dataMarket["price"], function (int $status) use ($p, $item, $dataMarket) {
-                        if ($status !== Loader::STATUS_SUCCESS)
-                            return $p->sendMessage("§aMarket > §cInsufficient funds to purchase this listing.");
-                        $p->getInventory()->addItem($item);
-                        $seller = $p->getServer()->getPlayerExact($dataMarket["seller"]);
-                        if ($seller instanceof Player) {
-                            $seller->sendMessage("§aMarket > §fplayer §a" . $p->getName() . "§f buy §a" . $item->getName() . "§f id §a" . $dataMarket["id"]);
-                        }
-                        $p->sendMessage("§aMarket > §fsuccesfully buy §a" . $item->getName());
-                        unset($this->plugin->markets[array_search($dataMarket, $this->plugin->markets)]);
+                    if (!isset($this->plugin->historys[$dataMarket["seller"]])) {
+                        $this->plugin->historys[$dataMarket["seller"]] = [];
                     }
+                    $provider = $this->plugin->getEconomy();
+                    $provider->buy(
+                        $p, $dataMarket["seller"], $dataMarket["price"],
+                        function (int $status) use ($p, $item, $dataMarket) {
+                            if ($status !== Loader::STATUS_SUCCESS)
+                                return $p->sendMessage("§aMarket > §cInsufficient funds to purchase this listing.");
+                            $p->getInventory()->addItem($item);
+                            $seller = $p->getServer()->getPlayerExact($dataMarket["seller"]);
+                            if ($seller instanceof Player) {
+                                
+                                $seller->sendMessage("§aMarket > §fplayer §a" . $p->getName() . "§f buy §a" . $item->getName() . "§f id §a" . $dataMarket["id"]);
+                            }
+                            $p->sendMessage("§aMarket > §fsuccesfully buy §a" . $item->getName());
+                            unset($this->plugin->markets[array_search($dataMarket, $this->plugin->markets)]);
+                            if (!isset($this->plugin->historys[$dataMarket["seller"]])) {
+                                $this->plugin->historys[$dataMarket["seller"]] = [];
+                            }
+                        }
                     );
                 } else {
                     $p->sendMessage("§aMarket > §cYour inventory full!");

@@ -2,12 +2,17 @@
 
 namespace dhnnz\Market;
 
+use cooldogedev\BedrockEconomy\api\BedrockEconomyAPI;
+use cooldogedev\BedrockEconomy\api\version\LegacyBEAPI;
+use cooldogedev\BedrockEconomy\libs\cooldogedev\libSQL\context\ClosureContext;
 use dhnnz\Market\commands\MarketCommand;
 use dhnnz\Market\economy\Economy;
 use dhnnz\Market\economy\types\BedrockEconomy;
 use dhnnz\Market\economy\types\EconomyAPI as TypesEconomyAPI;
 use dhnnz\Market\forms\FormManager;
 use onebone\economyapi\EconomyAPI;
+use pocketmine\event\EventPriority;
+use pocketmine\event\player\PlayerLoginEvent;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
@@ -21,15 +26,31 @@ class Loader extends PluginBase
     const STATUS_SUCCESS = 1;
 
     public array $markets = [];
+    public array $historys = [];
     public Economy $economy;
 
     public function onEnable(): void
     {
+        $this->setInstance($this);
         $type = $this->getEconomyType();
         $this->registerEconomy($type);
         $this->markets = (new Config($this->getDataFolder() . "markets.json", Config::JSON, []))->getAll();
+        $this->historys = (new Config($this->getDataFolder() . "historys.json", Config::JSON, []))->getAll();
 
         $this->getServer()->getCommandMap()->register("Markets", new MarketCommand($this), "market");
+        $this->getServer()->getPluginManager()->registerEvent(PlayerLoginEvent::class, function(PlayerLoginEvent $playerLoginEvent) use ($type){
+            $seller = $playerLoginEvent->getPlayer();
+            if (isset($this->historys[$seller])) {
+                if($type == "BedrockEconomy"){
+                    $bedrockEconomyAPI = BedrockEconomyAPI::legacy();
+                    $bedrockEconomyAPI->addToPlayerBalance($seller, $this->historys[$seller][1], ClosureContext::create(function (bool $wasUpdated): void { }
+                    ));
+                }elseif($type == "EconomyAPI"){
+                    $economyAPI = EconomyAPI::getInstance();
+                    $economyAPI->addMoney($seller, $this->historys[$seller][1]);
+                }
+            }
+        }, EventPriority::NORMAL, $this);
     }
 
     public function onDisable(): void

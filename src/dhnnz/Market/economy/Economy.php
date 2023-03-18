@@ -8,5 +8,5 @@ abstract class Economy{
 
     public function __construct(){}
 
-    abstract public function buy(Player $player, int $amount, callable $callable): void;
+    abstract public function buy(Player $player, string $seller, int $amount, callable $callable): void;
 }
