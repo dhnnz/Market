@@ -26,16 +26,10 @@ class Loader extends PluginBase
     public function onEnable(): void
     {
         $type = $this->getEconomyType();
-        if ($type === null) {
-            $this->getLogger()->alert("please install depend bedrockeconomy or economyapi");
-            $this->getServer()->getPluginManager()->disablePlugin($this);
-        }
         $this->registerEconomy($type);
-        $this->getLogger()->notice("register economy " . $type);
         $this->markets = (new Config($this->getDataFolder() . "markets.json", Config::JSON, []))->getAll();
-        $this->getLogger()->notice("Loaded " . count($this->markets) . " listings");
 
-        $this->getServer()->getCommandMap()->register("Market", new MarketCommand($this), "market");
+        $this->getServer()->getCommandMap()->register("Markets", new MarketCommand($this), "market");
     }
 
     public function onDisable(): void
