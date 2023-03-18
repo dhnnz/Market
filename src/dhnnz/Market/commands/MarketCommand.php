@@ -1,10 +1,10 @@
 <?php
 
-namespace Market\commands;
+namespace dhnnz\Market\commands;
 
-use Market\forms\FormManager;
-use Market\Loader;
-use Market\utils\Utils;
+use dhnnz\Market\forms\FormManager;
+use dhnnz\Market\Loader;
+use dhnnz\Market\utils\Utils;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;

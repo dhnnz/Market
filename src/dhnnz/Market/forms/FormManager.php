@@ -1,12 +1,12 @@
 <?php
 
-namespace Market\forms;
+namespace dhnnz\Market\forms;
 
 use jojoe77777\FormAPI\CustomForm;
 use jojoe77777\FormAPI\ModalForm;
 use jojoe77777\FormAPI\SimpleForm;
-use Market\Loader;
-use Market\utils\Utils;
+use dhnnz\Market\Loader;
+use dhnnz\Market\utils\Utils;
 use onebone\economyapi\EconomyAPI;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Market\utils;
+namespace dhnnz\Market\utils;
 
 use pocketmine\item\Item;
 use pocketmine\player\Player;

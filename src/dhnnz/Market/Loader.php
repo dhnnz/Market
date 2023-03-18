@@ -1,9 +1,9 @@
 <?php
 
-namespace Market;
+namespace dhnnz\Market;
 
-use Market\commands\MarketCommand;
-use Market\forms\FormManager;
+use dhnnz\Market\commands\MarketCommand;
+use dhnnz\Market\forms\FormManager;
 use onebone\economyapi\EconomyAPI;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
