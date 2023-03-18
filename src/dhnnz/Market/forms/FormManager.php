@@ -55,19 +55,23 @@ class FormManager
         return $form;
     }
 
-    public function marketListing(Player $p, $page = 1)
+    public function marketListing(Player $p, $page = 1, $markets = null, $search = "")
     {
-        $markets = array();
-        foreach ($this->plugin->markets as $sellers => $market) {
-            if ($market["state"] > 0) {
-                array_push($markets, $market);
+        if ($markets === null) {
+            $markets = array();
+            foreach ($this->plugin->markets as $sellers => $market) {
+                if ($market["state"] > 0) {
+                    array_push($markets, $market);
+                }
             }
         }
         $form = new SimpleForm(function (Player $p, $data = null) use ($page, $markets) {
             if ($data === null)
                 return;
 
-            if ($data == "close") {}
+            if ($data == "close") {
+            }
+            if($data == "search") $this->searchListing($p);
             if ($data == "next") {
                 $this->marketListing($p, $page + 1);
             }
@@ -78,12 +82,16 @@ class FormManager
                     $this->marketListing($p);
                 }
             }
-            if ($data !== "next" and $data !== "prev" and $data !== "close") {
+            if ($data !== "next" and $data !== "prev" and $data !== "close" and $data !== "search") {
                 $this->nextBuy($p, $markets[$data]);
             }
         });
-        if(count($markets) < 1) $form->setContent("There are no listings available at this time.");
-        $form->addButton("Close", 0, "textures/blocks/barrier", label:"close");
+        $form->addButton("§cClose", 0, "textures/blocks/barrier", label: "close");
+        $form->addButton("§fSearch", label: "search");
+        $searchText = ($search !== "") ? "Search: $search\n" : "";
+        $listingsText = (count($markets) < 1) ? "There are no listings available at this time." : "";
+
+        $form->setContent($searchText . $listingsText);
         $form->setTitle("Market Listings - Page $page");
         $total_pages = ceil(count($markets) / 5);
         $start = ($page - 1) * 5;
@@ -93,11 +101,41 @@ class FormManager
             $form->addButton("§f" . $item->getName() . ": " . $item->getCount() . "\n§fPrice: §5" . number_format((float) $markets[$i]["price"]) . "§f Sell by " . $markets[$i]["seller"], label: $i);
         }
         if ($page < $total_pages) {
-            $form->addButton("Next", label: "next");
+            $form->addButton("Next", 0, "textures/ui/arrow_right", label: "next");
         }
         if ($page > 1) {
-            $form->addButton("Prev", label: "prev");
+            $form->addButton("Prev", 0, "textures/ui/arrow_left", label: "prev");
         }
+        $form->sendToPlayer($p);
+        return $form;
+    }
+
+    public function searchListing(Player $p)
+    {
+        $form = new CustomForm(function(Player $p, $data = null){
+            if($data === null) return;
+            $search = $data["search"];
+            $markets = [];
+
+            foreach ($this->plugin->markets as $market) {
+                if ($market["state"] > 0) {
+                    $item = ItemFactory::getInstance()->get(1)->jsonDeserialize($market["itemJson"]);
+                    $seller = $market["seller"];
+
+                    foreach (explode(" ", $search) as $word) {
+                        if (stripos($item->getName(), $word) !== false || stripos($seller, $word) !== false) {
+                            if (!in_array($market, $markets)) {
+                                $markets[] = $market;
+                            }
+                        }
+                    }
+                }
+            }
+
+            $this->marketListing($p, markets:$markets, search:$search);
+        });
+        $form->setTitle("Search");
+        $form->addInput("search:", label:"search");
         $form->sendToPlayer($p);
         return $form;
     }
@@ -159,11 +197,13 @@ class FormManager
             if ($data === null)
                 return;
             if ($data) {
-                if($dataMarket["seller"] === $p->getName()) return $p->sendMessage("§aMarket > §cPlease note that sellers are not allowed to purchase their own items for sale.");
+                if ($dataMarket["seller"] === $p->getName())
+                    return $p->sendMessage("§aMarket > §cPlease note that sellers are not allowed to purchase their own items for sale.");
                 if ($p->getInventory()->canAddItem($item)) {
                     $provider = $this->plugin->getEconomy();
-                    $provider->buy($p, $dataMarket["price"], function (int $status) use ($p, $item, $dataMarket){
-                        if ($status !== Loader::STATUS_SUCCESS) return $p->sendMessage("§aMarket > §cInsufficient funds to purchase this listing.");
+                    $provider->buy($p, $dataMarket["price"], function (int $status) use ($p, $item, $dataMarket) {
+                        if ($status !== Loader::STATUS_SUCCESS)
+                            return $p->sendMessage("§aMarket > §cInsufficient funds to purchase this listing.");
                         $p->getInventory()->addItem($item);
                         $seller = $p->getServer()->getPlayerExact($dataMarket["seller"]);
                         if ($seller instanceof Player) {
@@ -171,7 +211,8 @@ class FormManager
                         }
                         $p->sendMessage("§aMarket > §fsuccesfully buy §a" . $item->getName());
                         unset($this->plugin->markets[array_search($dataMarket, $this->plugin->markets)]);
-                    });
+                    }
+                    );
                 } else {
                     $p->sendMessage("§aMarket > §cYour inventory full!");
                 }
