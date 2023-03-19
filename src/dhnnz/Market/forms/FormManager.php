@@ -282,8 +282,10 @@ class FormManager
                 array_push($items, $item);
             }
             $itemSelected = $items[$data["items"]];
-            if (intval($data["count"]) > $itemSelected->getCount())
+            if (intval($data["count"]) > $itemSelected->getCount()){
                 $this->nextSell($p, "§cNot enough items");
+                return;
+            }
             $itemSelected->setCount(intval($data["count"]));
             $this->plugin->registerMarket(
                 $p,
