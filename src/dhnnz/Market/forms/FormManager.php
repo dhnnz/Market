@@ -10,6 +10,7 @@ use dhnnz\Market\utils\Utils;
 use onebone\economyapi\EconomyAPI;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
+use pocketmine\lang\Translatable;
 use pocketmine\player\Player;
 use pocketmine\Server;
 
@@ -195,7 +196,7 @@ class FormManager
     public function nextBuy(Player $p, array $dataMarket)
     {
         $item = $p->getInventory()->getItemInHand()->jsonDeserialize($dataMarket["itemJson"]);
-        $form = new ModalForm(function (Player $p, $data) use ($dataMarket, $item) {
+        $form = new ModalForm(function (Player $p, $data = false) use ($dataMarket, $item) {
             if ($data === null)
                 return;
             if ($data) {
@@ -211,7 +212,7 @@ class FormManager
                             $p->getInventory()->addItem($item);
                             $seller = $p->getServer()->getPlayerExact($dataMarket["seller"]);
                             if ($seller instanceof Player) {
-                                
+
                                 $seller->sendMessage("§aMarket > §fplayer §a" . $p->getName() . "§f buy §a" . $item->getName() . "§f id §a" . $dataMarket["id"]);
                             }
                             $p->sendMessage("§aMarket > §fsuccesfully buy §a" . $item->getName());
@@ -222,9 +223,19 @@ class FormManager
                     $p->sendMessage("§aMarket > §cYour inventory full!");
                 }
             }
+            return;
         });
+        $arrayEnchant = array_map(function ($enchant) {
+            return [
+                ($enchant->getType()->getName() instanceof Translatable) ? $enchant->getType()->getName()->getText() : $enchant->getType()->getName(),
+                $enchant->getLevel()
+            ];
+        }, $item->getEnchantments());
+        $enchantments = array_map(function ($enchant) {
+            return sprintf('- %s (Level %d)', $enchant[0], $enchant[1]);
+        }, $arrayEnchant);
         $form->setTitle("Buy");
-        $form->setContent("ID: " . $dataMarket["id"] . "\nItem name: " . $item->getName() . "\nItem ID: " . $item->getId() . "\nItem Meta: " . $item->getMeta() . "\nPrice: " . number_format((float) $dataMarket["price"]) . "\nSeller: " . $dataMarket["seller"]);
+        $form->setContent("ID: " . $dataMarket["id"] . "\nItem name: " . $item->getName() . "\nItem ID: " . $item->getId() . "\nItem Meta: " . $item->getMeta() . "\nPrice: " . number_format((float) $dataMarket["price"]) . "\nSeller: " . $dataMarket["seller"] . "\nEnchantment (" . count($enchantments) . "):\n" . implode("\n", $enchantments));
         $form->setButton1("Buy");
         $form->setButton2("Back");
         $form->sendToPlayer($p);
