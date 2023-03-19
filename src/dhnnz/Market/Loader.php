@@ -38,19 +38,6 @@ class Loader extends PluginBase
         $this->historys = (new Config($this->getDataFolder() . "historys.json", Config::JSON, []))->getAll();
 
         $this->getServer()->getCommandMap()->register("Markets", new MarketCommand($this), "market");
-        $this->getServer()->getPluginManager()->registerEvent(PlayerLoginEvent::class, function(PlayerLoginEvent $playerLoginEvent) use ($type){
-            $seller = $playerLoginEvent->getPlayer();
-            if (isset($this->historys[$seller->getName()])) {
-                if($type == "BedrockEconomy"){
-                    $bedrockEconomyAPI = BedrockEconomyAPI::legacy();
-                    $bedrockEconomyAPI->addToPlayerBalance($seller->getName(), $this->historys[$seller->getName()][1], ClosureContext::create(function (bool $wasUpdated): void { }
-                    ));
-                }elseif($type == "EconomyAPI"){
-                    $economyAPI = EconomyAPI::getInstance();
-                    $economyAPI->addMoney($seller, $this->historys[$seller->getName()][1]);
-                }
-            }
-        }, EventPriority::NORMAL, $this);
     }
 
     public function onDisable(): void

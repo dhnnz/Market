@@ -202,9 +202,6 @@ class FormManager
                 if ($dataMarket["seller"] === $p->getName())
                     return $p->sendMessage("§aMarket > §cPlease note that sellers are not allowed to purchase their own items for sale.");
                 if ($p->getInventory()->canAddItem($item)) {
-                    if (!isset($this->plugin->historys[$dataMarket["seller"]])) {
-                        $this->plugin->historys[$dataMarket["seller"]] = [];
-                    }
                     $provider = $this->plugin->getEconomy();
                     $provider->buy(
                         $p, $dataMarket["seller"], $dataMarket["price"],

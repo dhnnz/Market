@@ -21,15 +21,7 @@ class EconomyAPI extends Economy
     public function buy(Player $player, string $seller, int $amount, callable $callable): void
     {
         if ($this->economyAPI->myMoney($player) >= $amount) {
-            $seller = Server::getInstance()->getPlayerExact($seller);
-            if ($seller instanceof Player) {
-                $this->economyAPI->addMoney($seller, $amount);
-            }else{
-                Loader::getInstance()->historys[$seller][] = array(
-                    $player->getName(),
-                    $amount
-                );
-            }
+            $this->economyAPI->addMoney($seller, $amount);
             $this->economyAPI->reduceMoney($player, $amount);
             $callable(Loader::STATUS_SUCCESS);
         } else {
