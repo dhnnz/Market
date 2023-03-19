@@ -34,6 +34,7 @@ class Loader extends PluginBase
         $this->setInstance($this);
         $type = $this->getEconomyType();
         $this->registerEconomy($type);
+        $this->saveResource("config.yml");
         $this->markets = (new Config($this->getDataFolder() . "markets.json", Config::JSON, []))->getAll();
         $this->historys = (new Config($this->getDataFolder() . "historys.json", Config::JSON, []))->getAll();
 

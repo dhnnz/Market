@@ -2,9 +2,13 @@
 
 namespace dhnnz\Market\forms;
 
+use DateTime;
 use dhnnz\Market\libs\jojoe77777\FormAPI\CustomForm;
 use dhnnz\Market\libs\jojoe77777\FormAPI\ModalForm;
 use dhnnz\Market\libs\jojoe77777\FormAPI\SimpleForm;
+use dhnnz\Market\libs\webhook\Embed;
+use dhnnz\Market\libs\webhook\Message;
+use dhnnz\Market\libs\webhook\Webhook;
 use dhnnz\Market\Loader;
 use dhnnz\Market\utils\Utils;
 use onebone\economyapi\EconomyAPI;
@@ -217,6 +221,17 @@ class FormManager
                             }
                             $p->sendMessage("§aMarket > §fsuccesfully buy §a" . $item->getName());
                             unset($this->plugin->markets[array_search($dataMarket, $this->plugin->markets)]);
+                            /** Discord Webhook */
+                            $webhook = new Webhook(Loader::getInstance()->getConfig()->get("webhook"));
+                            if ($webhook->isValid()) {
+                                $message = new Message();
+                                $embed = new Embed();
+                                $embed->setTitle("Market");
+                                $embed->setDescription("**" . $p->getName() . "** bought **" . $item->getName() . "** from **" . $dataMarket["seller"] . "** for **" . number_format((float) intval($dataMarket["price"])) . "** money");
+                                $embed->setTimestamp(new DateTime("now"));
+                                $message->addEmbed($embed);
+                                $webhook->send($message);
+                            }
                         }
                     );
                 } else {
@@ -282,7 +297,7 @@ class FormManager
                 array_push($items, $item);
             }
             $itemSelected = $items[$data["items"]];
-            if (intval($data["count"]) > $itemSelected->getCount()){
+            if (intval($data["count"]) > $itemSelected->getCount()) {
                 $this->nextSell($p, "§cNot enough items");
                 return;
             }
