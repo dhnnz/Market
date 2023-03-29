@@ -55,11 +55,11 @@ class Loader extends PluginBase
 
     public function registerEconomy(string $name = "EconomyAPI")
     {
-        match ($name) {
-            "BedrockEconomy" => $economy = new BedrockEconomy(),
-            "EconomyAPI" => $economy = new TypesEconomyAPI(),
+        $this->economy = match ($name) {
+            "BedrockEconomy" => new BedrockEconomy(),
+            "EconomyAPI" => new TypesEconomyAPI(),
+            default => new TypesEconomyAPI(),
         };
-        $this->economy = $economy;
     }
 
     public function getFormManager(): FormManager
