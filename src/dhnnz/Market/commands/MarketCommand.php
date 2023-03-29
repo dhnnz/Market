@@ -15,12 +15,13 @@ class MarketCommand extends Command implements PluginOwned
 {
     public function __construct(protected Loader $plugin)
     {
+        $this->setPermission("market.cmd");
         $this->setAliases(["shops", "shop"]);
     }
 
     public function execute(CommandSender $sender, string $commandLabel, array $args)
     {
-        if (!$sender instanceof Player)
+        if (!$this->testPermission($sender) || !$sender instanceof Player)
             return;
         if (count($args) < 1) {
             $this->getOwningPlugin()->getFormManager()->main($sender);
