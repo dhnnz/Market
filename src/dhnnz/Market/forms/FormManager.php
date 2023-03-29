@@ -33,7 +33,8 @@ class FormManager
 
             match ($data) {
                 0 => $this->buyMenu($p),
-                1 => $this->sellMenu($p)
+                1 => $this->sellMenu($p),
+                default => $this->main($p),
             };
         });
         $form->setTitle("Market");
@@ -50,7 +51,8 @@ class FormManager
                 return;
             match ($data) {
                 0 => $this->marketListing($p),
-                1 => $this->main($p)
+                1 => $this->main($p),
+                default => $this->buyMenu($p),
             };
         });
         $form->setTitle("Buy");
