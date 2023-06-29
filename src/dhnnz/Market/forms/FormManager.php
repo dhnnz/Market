@@ -312,7 +312,7 @@ class FormManager
                 $p,
                 array(
                     "seller" => $p->getName(),
-                    "itemJson" => Utils::ItemSerialize($itemSelected->jsonSerialize()),
+                    "itemJson" => Utils::ItemSerialize($itemSelected),
                     "price" => $data["price"],
                     "id" => uniqid(),
                     "state" => !$data["state"] ? 0 : 1,
