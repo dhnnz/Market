@@ -14,6 +14,7 @@ use dhnnz\Market\utils\Utils;
 use onebone\economyapi\EconomyAPI;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
+use pocketmine\item\VanillaItems;
 use pocketmine\lang\Translatable;
 use pocketmine\player\Player;
 use pocketmine\Server;
@@ -105,7 +106,7 @@ class FormManager
         $start = ($page - 1) * 5;
         $end = min(($start + 5), count($markets));
         for ($i = $start; $i < $end; $i++) {
-            $item = $p->getInventory()->getItemInHand()->jsonDeserialize($markets[$i]["itemJson"]);
+            $item = $p->getInventory()->getItemInHand()->legacyJsonDeserialize($markets[$i]["itemJson"]);
             $form->addButton("§f" . $item->getName() . ": " . $item->getCount() . "\n§fPrice: §5" . number_format((float) $markets[$i]["price"]) . "§f Sell by " . $markets[$i]["seller"], label: $i);
         }
         if ($page < $total_pages) {
@@ -128,7 +129,7 @@ class FormManager
 
             foreach ($this->plugin->markets as $market) {
                 if ($market["state"] > 0) {
-                    $item = ItemFactory::getInstance()->get(1)->jsonDeserialize($market["itemJson"]);
+                    $item = VanillaItems::AIR()->legacyJsonDeserialize($market["itemJson"]);
                     $seller = $market["seller"];
 
                     foreach (explode(" ", $search) as $word) {
@@ -159,7 +160,7 @@ class FormManager
         $form->setTitle("Sell");
         foreach ($this->plugin->markets as $sellers => $market) {
             if ($market["seller"] == $p->getName()) {
-                $item = $p->getInventory()->getItemInHand()->jsonDeserialize($market["itemJson"]);
+                $item = $p->getInventory()->getItemInHand()->legacyJsonDeserialize($market["itemJson"]);
                 $form->addButton("§f" . $item->getName() . ": " . $item->getCount() . "\n§fPrice: §5" . number_format((float) $market["price"]) . "§f Sell by " . $market["seller"], label: $market["id"]);
             }
         }
@@ -169,7 +170,7 @@ class FormManager
 
     public function selectListing(Player $p, array $dataMarket)
     {
-        $item = $p->getInventory()->getItemInHand()->jsonDeserialize($dataMarket["itemJson"]);
+        $item = $p->getInventory()->getItemInHand()->legacyJsonDeserialize($dataMarket["itemJson"]);
         $form = new SimpleForm(function (Player $p, $data = null) use ($dataMarket) {
             if ($data === null)
                 return;
@@ -192,7 +193,7 @@ class FormManager
             }
         });
         $form->setTitle($item->getName() . "-" . $dataMarket["id"]);
-        $form->setContent("ID: " . $dataMarket["id"] . "\nItem name: " . $item->getName() . "\nItem ID: " . $item->getId() . "\nItem Meta: " . $item->getMeta() . "\nPrice: " . number_format((float) $dataMarket["price"]) . "\nSeller: " . $dataMarket["seller"]);
+        $form->setContent("ID: " . $dataMarket["id"] . "\nItem name: " . $item->getName() . "\nItem ID: " . $item->getTypeId() . "\nItem Meta: " . $item->getStateId() . "\nPrice: " . number_format((float) $dataMarket["price"]) . "\nSeller: " . $dataMarket["seller"]);
         $form->addButton("Remove Listing", label: "remove");
         $form->addButton(($dataMarket["state"] > 0) ? "Private listing" : "Publish listing", label: $dataMarket["state"]);
         $form->sendToPlayer($p);
@@ -201,7 +202,7 @@ class FormManager
 
     public function nextBuy(Player $p, array $dataMarket)
     {
-        $item = $p->getInventory()->getItemInHand()->jsonDeserialize($dataMarket["itemJson"]);
+        $item = $p->getInventory()->getItemInHand()->legacyJsonDeserialize($dataMarket["itemJson"]);
         $form = new ModalForm(function (Player $p, $data = false) use ($dataMarket, $item) {
             if ($data === null)
                 return;
@@ -252,7 +253,7 @@ class FormManager
             return sprintf('- %s (Level %d)', $enchant[0], $enchant[1]);
         }, $arrayEnchant);
         $form->setTitle("Buy");
-        $form->setContent("ID: " . $dataMarket["id"] . "\nItem name: " . $item->getName() . "\nItem ID: " . $item->getId() . "\nItem Meta: " . $item->getMeta() . "\nPrice: " . number_format((float) $dataMarket["price"]) . "\nSeller: " . $dataMarket["seller"] . "\nEnchantment (" . count($enchantments) . "):\n" . implode("\n", $enchantments));
+        $form->setContent("ID: " . $dataMarket["id"] . "\nItem name: " . $item->getName() . "\nItem ID: " . $item->getTypeId() . "\nItem Meta: " . $item->getStateId() . "\nPrice: " . number_format((float) $dataMarket["price"]) . "\nSeller: " . $dataMarket["seller"] . "\nEnchantment (" . count($enchantments) . "):\n" . implode("\n", $enchantments));
         $form->setButton1("Buy");
         $form->setButton2("Back");
         $form->sendToPlayer($p);

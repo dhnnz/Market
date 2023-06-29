@@ -1,6 +1,6 @@
 name: Market
-version: 0.3
-api: 4.0.0
+version: 5.0
+api: 5.0.0
 main: dhnnz\Market\Loader
 author: dhnnz
 website: https://github.com/dhnnz/Market
