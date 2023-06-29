@@ -319,7 +319,7 @@ class FormManager
                     "created" => date("Y-m-d h:i:s")
                 )
             );
-            $p->getInventory()->remove($itemSelected);
+            $p->getInventory()->removeItem($itemSelected);
             $p->sendMessage("§aMarket > §fItem §a" . $itemSelected->getName() . "§f added to Market");
         });
         $form->setTitle("Sell");
