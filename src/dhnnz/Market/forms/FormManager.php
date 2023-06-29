@@ -207,19 +207,22 @@ class FormManager
             if ($data === null)
                 return;
             if ($data) {
-                if ($dataMarket["seller"] === $p->getName())
+                if ($dataMarket["seller"] === $p->getName()){
                     return $p->sendMessage("§aMarket > §cPlease note that sellers are not allowed to purchase their own items for sale.");
+                    return;
+                }
                 if ($p->getInventory()->canAddItem($item)) {
                     $provider = $this->plugin->getEconomy();
                     $provider->buy(
                         $p, $dataMarket["seller"], $dataMarket["price"],
                         function (int $status) use ($p, $item, $dataMarket) {
-                            if ($status !== Loader::STATUS_SUCCESS)
-                                return $p->sendMessage("§aMarket > §cInsufficient funds to purchase this listing.");
+                            if ($status !== Loader::STATUS_SUCCESS){
+                                $p->sendMessage("§aMarket > §cInsufficient funds to purchase this listing.");
+                                return;
+                            }
                             $p->getInventory()->addItem($item);
                             $seller = $p->getServer()->getPlayerExact($dataMarket["seller"]);
                             if ($seller instanceof Player) {
-
                                 $seller->sendMessage("§aMarket > §fplayer §a" . $p->getName() . "§f buy §a" . $item->getName() . "§f id §a" . $dataMarket["id"]);
                             }
                             $p->sendMessage("§aMarket > §fsuccesfully buy §a" . $item->getName());
