@@ -10,13 +10,14 @@ use pocketmine\Server;
 
 class DiscordWebhookSendTask extends AsyncTask
 {
-    public function __construct(protected Webhook $webhook, protected string $message)
+    public function __construct(protected $webhook, protected $message)
     {
     }
 
     public function onRun(): void
     {
         $this->message = unserialize($this->message);
+        $this->webhook = unserialize($this->webhook);
         $ch = curl_init($this->webhook->getURL());
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->message));
         curl_setopt($ch, CURLOPT_POST, true);
