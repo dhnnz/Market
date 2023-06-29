@@ -208,7 +208,7 @@ class FormManager
                 return;
             if ($data) {
                 if ($dataMarket["seller"] === $p->getName()){
-                    return $p->sendMessage("§aMarket > §cPlease note that sellers are not allowed to purchase their own items for sale.");
+                    $p->sendMessage("§aMarket > §cPlease note that sellers are not allowed to purchase their own items for sale.");
                     return;
                 }
                 if ($p->getInventory()->canAddItem($item)) {
