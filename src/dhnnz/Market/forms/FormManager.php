@@ -106,7 +106,7 @@ class FormManager
         $start = ($page - 1) * 5;
         $end = min(($start + 5), count($markets));
         for ($i = $start; $i < $end; $i++) {
-            $item = $p->getInventory()->getItemInHand()->legacyJsonDeserialize($markets[$i]["itemJson"]);
+            $item = Utils::ItemDeserialize($markets[$i]["itemJson"]);
             $form->addButton("§f" . $item->getName() . ": " . $item->getCount() . "\n§fPrice: §5" . number_format((float) $markets[$i]["price"]) . "§f Sell by " . $markets[$i]["seller"], label: $i);
         }
         if ($page < $total_pages) {
@@ -129,7 +129,7 @@ class FormManager
 
             foreach ($this->plugin->markets as $market) {
                 if ($market["state"] > 0) {
-                    $item = VanillaItems::AIR()->legacyJsonDeserialize($market["itemJson"]);
+                    $item = Utils::ItemDeserialize($market["itemJson"]);
                     $seller = $market["seller"];
 
                     foreach (explode(" ", $search) as $word) {
@@ -160,7 +160,7 @@ class FormManager
         $form->setTitle("Sell");
         foreach ($this->plugin->markets as $sellers => $market) {
             if ($market["seller"] == $p->getName()) {
-                $item = $p->getInventory()->getItemInHand()->legacyJsonDeserialize($market["itemJson"]);
+                $item = Utils::ItemDeserialize($market["itemJson"]);
                 $form->addButton("§f" . $item->getName() . ": " . $item->getCount() . "\n§fPrice: §5" . number_format((float) $market["price"]) . "§f Sell by " . $market["seller"], label: $market["id"]);
             }
         }
@@ -170,7 +170,7 @@ class FormManager
 
     public function selectListing(Player $p, array $dataMarket)
     {
-        $item = $p->getInventory()->getItemInHand()->legacyJsonDeserialize($dataMarket["itemJson"]);
+        $item = Utils::ItemDeserialize($dataMarket["itemJson"]);
         $form = new SimpleForm(function (Player $p, $data = null) use ($dataMarket) {
             if ($data === null)
                 return;
@@ -202,7 +202,7 @@ class FormManager
 
     public function nextBuy(Player $p, array $dataMarket)
     {
-        $item = $p->getInventory()->getItemInHand()->legacyJsonDeserialize($dataMarket["itemJson"]);
+        $item = Utils::ItemDeserialize($dataMarket["itemJson"]);
         $form = new ModalForm(function (Player $p, $data = false) use ($dataMarket, $item) {
             if ($data === null)
                 return;
@@ -312,7 +312,7 @@ class FormManager
                 $p,
                 array(
                     "seller" => $p->getName(),
-                    "itemJson" => $itemSelected->jsonSerialize(),
+                    "itemJson" => Utils::ItemSerialize($itemSelected->jsonSerialize()),
                     "price" => $data["price"],
                     "id" => uniqid(),
                     "state" => !$data["state"] ? 0 : 1,

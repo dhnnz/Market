@@ -3,7 +3,13 @@
 namespace dhnnz\Market\utils;
 
 use pocketmine\item\Item;
+use pocketmine\nbt\BigEndianNbtSerializer;
+use pocketmine\nbt\TreeRoot;
 use pocketmine\player\Player;
+use RuntimeException;
+use function zlib_decode;
+use function zlib_encode;
+use const ZLIB_ENCODING_GZIP;
 
 class Utils{
 
@@ -36,4 +42,18 @@ class Utils{
         }
         return null;
     }
+
+    public static function ItemSerialize(Item $item) : string{
+		$result = zlib_encode((new BigEndianNbtSerializer())->write(new TreeRoot($item->nbtSerialize())), ZLIB_ENCODING_GZIP);
+		if($result === false){
+			/** @noinspection PhpUnhandledExceptionInspection */
+			throw new RuntimeException("Failed to serialize item " . json_encode($item, JSON_THROW_ON_ERROR));
+		}
+
+		return $result;
+	}
+
+	public static function ItemDeserialize(string $string) : Item{
+		return Item::nbtDeserialize((new BigEndianNbtSerializer())->read(zlib_decode($string))->mustGetCompoundTag());
+	}
 }
