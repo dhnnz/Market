@@ -54,6 +54,6 @@ class Utils{
 	}
 
 	public static function ItemDeserialize(string $string) : Item{
-		return Item::nbtDeserialize((new BigEndianNbtSerializer())->read(zlib_decode($string))->mustGetCompoundTag());
+		return Item::nbtDeserialize((new BigEndianNbtSerializer())->read(zlib_decode(hex2bin($string)))->mustGetCompoundTag());
 	}
 }

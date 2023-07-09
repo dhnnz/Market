@@ -207,7 +207,7 @@ class FormManager
             if ($data === null)
                 return;
             if ($data) {
-                if ($dataMarket["seller"] === $p->getName()){
+                if ($dataMarket["seller"] === $p->getName()) {
                     $p->sendMessage("§aMarket > §cPlease note that sellers are not allowed to purchase their own items for sale.");
                     return;
                 }
@@ -216,7 +216,7 @@ class FormManager
                     $provider->buy(
                         $p, $dataMarket["seller"], $dataMarket["price"],
                         function (int $status) use ($p, $item, $dataMarket) {
-                            if ($status !== Loader::STATUS_SUCCESS){
+                            if ($status !== Loader::STATUS_SUCCESS) {
                                 $p->sendMessage("§aMarket > §cInsufficient funds to purchase this listing.");
                                 return;
                             }
@@ -312,7 +312,7 @@ class FormManager
                 $p,
                 array(
                     "seller" => $p->getName(),
-                    "itemJson" => Utils::ItemSerialize($itemSelected),
+                    "itemJson" => bin2hex(Utils::ItemSerialize($itemSelected)),
                     "price" => $data["price"],
                     "id" => uniqid(),
                     "state" => !$data["state"] ? 0 : 1,
